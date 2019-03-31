@@ -8,9 +8,7 @@ class ConvModel(nn.Module):
         self.in_channel = in_channel
 
         self.seq_conv = nn.Sequential(
-            nn.Conv1d(self.in_channel, self.in_channel * 4, kernel_size=3),
-            nn.ReLU(),
-            nn.Conv1d(self.in_channel * 4, self.in_channel * 4 ** 2, kernel_size=7, stride=3),
+            nn.Conv1d(self.in_channel, self.in_channel * 8, kernel_size=3),
             nn.ReLU(),
             nn.MaxPool1d(30, 30)
         )
@@ -25,17 +23,20 @@ class RecModel(nn.Module):
         self.in_channel = out_channel_conv
         self.batch_size = batch_size
 
-        self.lstm = nn.LSTM(self.in_channel, self.in_channel * 2, batch_first=True)
-        self.fst_h = th.randn(1, self.batch_size, self.in_channel * 2)
-        self.fst_x = th.randn(1, self.batch_size, self.in_channel * 2)
+        self.lstm = nn.LSTM(self.in_channel, self.in_channel * 4, batch_first=True)
+        self.fst_h = th.rand(1, self.batch_size, self.in_channel * 4)
+        self.fst_x = th.rand(1, self.batch_size, self.in_channel * 4)
 
     def forward(self, out_conv):
         out = out_conv.transpose(2, 1)
+
         h, x = self.fst_h[:, :out.size(0), :], self.fst_x[:, :out.size(0), :]
+
         if next(self.parameters()).is_cuda:
             h, x = h.cuda(), x.cuda()
 
         out, _ = self.lstm(out, (h, x))
+
         return out
 
 
@@ -44,10 +45,10 @@ class HybridModel(nn.Module):
         super(HybridModel, self).__init__()
 
         self.conv = ConvModel(in_channel)
-        self.lstm = RecModel(in_channel * 4 ** 2, batch_size)
+        self.lstm = RecModel(in_channel * 8, batch_size)
 
         self.lin_seq = nn.Sequential(
-            nn.Linear(in_channel * 2 * 4 ** 2, 1)
+            nn.Linear(in_channel * 8 * 4, 1)
         )
 
     def forward(self, x):
