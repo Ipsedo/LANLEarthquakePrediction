@@ -7,7 +7,7 @@ import numpy as np
 from utils.thread import ThreadWithReturnValue
 
 
-def pickle_data(x, y, root_dir, prefix_fine_name, nb_data_per_file=100):
+def save_pickle(x, y, root_dir, prefix_fine_name, nb_data_per_file=100):
     nb_file = ceil(x.shape[0] / nb_data_per_file)
 
     for i in tqdm(range(nb_file)):
