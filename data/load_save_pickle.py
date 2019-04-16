@@ -20,7 +20,7 @@ def save_pickle(x, y, root_dir, prefix_fine_name, nb_data_per_file=100):
         pkl.dump((x_batch, y_batch), open(file_name, "wb"))
 
 
-def load_pickle(root_folder, nb_thread=16):
+def load_pickle(root_folder, nb_thread=8):
     file_names = np.asarray([join(root_folder, f) for f in listdir(root_folder)])
     nb_batch = ceil(file_names.shape[0] / nb_thread)
 
